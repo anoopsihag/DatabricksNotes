@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Databricks Notes: simple drawings of the main concepts of Databricks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Patrick+Hand&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page: #F3F5F4;
+    --paper: #FFFFFF;
+    --dot: #D3DCE0;
+    --ink: #1B3139;
+    --muted: #4E656E;
+    --lava: #FF3621;
+    --good: #14895C;
+    --pink: #FFD7D0;
+    --yellow: #FFEFB0;
+    --mint: #CBEFDD;
+    --sky: #D2E6FF;
+    --lav: #E3DAFF;
+    --hl-y: #FFE066;
+    --hl-p: #FFB3A6;
+    --hl-m: #8FE0B8;
+    --shadow: rgba(27, 49, 57, .18);
+    --bronze: #C98A57;
+    --silver: #C3CCD3;
+    --gold: #F2C744;
+
+    --hand: "Patrick Hand", "Segoe Print", "Comic Sans MS", "Marker Felt", cursive;
+    --brush: "Caveat Brush", "Segoe Print", "Comic Sans MS", "Marker Felt", cursive;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #0D171B; --paper: #16242A; --dot: #25383F; --ink: #E9F1F3; --muted: #9DB2BA;
+      --lava: #FF6A55; --good: #4CD09B;
+      --pink: #4C2B2B; --yellow: #4B4322; --mint: #1F4536; --sky: #1F3B57; --lav: #382F59;
+      --hl-y: #7A6A1A; --hl-p: #8A3B30; --hl-m: #2F7A58; --shadow: rgba(0,0,0,.45);
+      --bronze: #B07240; --silver: #93A0AA; --gold: #D7AA2E;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #0D171B; --paper: #16242A; --dot: #25383F; --ink: #E9F1F3; --muted: #9DB2BA;
+    --lava: #FF6A55; --good: #4CD09B;
+    --pink: #4C2B2B; --yellow: #4B4322; --mint: #1F4536; --sky: #1F3B57; --lav: #382F59;
+    --hl-y: #7A6A1A; --hl-p: #8A3B30; --hl-m: #2F7A58; --shadow: rgba(0,0,0,.45);
+    --bronze: #B07240; --silver: #93A0AA; --gold: #D7AA2E;
+  }
+
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); min-height: 100%; }
+  *, *::before, *::after { box-sizing: inherit; }
+  body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--hand); font-size: 1.2rem; line-height: 1.3; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3, p, ul { margin: 0; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--lava); outline-offset: 3px; border-radius: 6px; }
+
+  /* ---------- drawing primitives ---------- */
+  .ico { width: 48px; height: 48px; flex: none; fill: none; stroke: var(--ink); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; filter: url(#rough2); --fa: var(--yellow); }
+  .ico.lg { width: 72px; height: 72px; }
+  .ico.xl { width: 110px; height: 110px; }
+  .ico.sm { width: 30px; height: 30px; stroke-width: 4.5; }
+  .fa-yellow { --fa: var(--yellow); } .fa-pink { --fa: var(--pink); } .fa-mint { --fa: var(--mint); }
+  .fa-sky { --fa: var(--sky); } .fa-lav { --fa: var(--lav); } .fa-none { --fa: transparent; }
+  .yes { stroke: var(--good); } .no { stroke: var(--lava); }
+
+  .box { position: relative; isolation: isolate; padding: 14px 16px; --f: var(--paper); }
+  .box::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: var(--f); border: 3px solid var(--ink);
+    border-radius: 16px 12px 18px 11px / 12px 17px 11px 16px;
+    filter: url(#rough);
+  }
+  .c-pink { --f: var(--pink); } .c-yellow { --f: var(--yellow); } .c-mint { --f: var(--mint); }
+  .c-sky { --f: var(--sky); } .c-lav { --f: var(--lav); }
+  .metal { color: #1B3139; }
+  .m-bronze { --f: var(--bronze); } .m-silver { --f: var(--silver); } .m-gold { --f: var(--gold); }
+
+  .sticky { position: relative; background: var(--yellow); padding: 16px 16px 14px; box-shadow: 3px 4px 0 var(--shadow); transform: rotate(-1.2deg); border-radius: 2px; }
+  .sticky::before { content: ""; position: absolute; top: -10px; left: 50%; width: 64px; height: 20px; margin-left: -32px; background: color-mix(in srgb, var(--lava) 22%, transparent); transform: rotate(2deg); }
+  .sticky.tilt-r { transform: rotate(1.4deg); }
+  .sticky.pink { background: var(--pink); } .sticky.mint { background: var(--mint); } .sticky.sky { background: var(--sky); }
+
+  .hl { background: linear-gradient(transparent 52%, var(--hl-y) 52%, var(--hl-y) 92%, transparent 92%); padding: 0 .12em; }
+  .hl.p { background: linear-gradient(transparent 52%, var(--hl-p) 52%, var(--hl-p) 92%, transparent 92%); }
+  .hl.m { background: linear-gradient(transparent 52%, var(--hl-m) 52%, var(--hl-m) 92%, transparent 92%); }
+
+  .arr { width: 72px; height: 24px; flex: none; fill: none; stroke: var(--ink); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; filter: url(#rough2); }
+  .arr.d { width: 24px; height: 56px; }
+  .arr-lab { display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--muted); font-size: 1rem; text-align: center; }
+
+  .ttl { font-family: var(--brush); font-weight: 400; font-size: clamp(1.4rem, 2.4vw, 1.8rem); line-height: 1.05; letter-spacing: .01em; }
+  .hd { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .op { font-family: var(--brush); font-size: clamp(2.2rem, 4vw, 3.2rem); align-self: center; color: var(--muted); text-align: center; }
+  .small { font-size: 1rem; color: var(--muted); }
+
+  .g2, .g3, .g4, .g5 { display: grid; gap: clamp(14px, 2vw, 24px); }
+  .g2 { grid-template-columns: repeat(2, 1fr); }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  .g5 { grid-template-columns: repeat(5, 1fr); }
+  .g-eq { display: grid; gap: clamp(14px, 2vw, 24px); grid-template-columns: 1fr auto 1fr auto 1.2fr; align-items: stretch; }
+  .flow { display: flex; gap: clamp(8px, 1.4vw, 16px); align-items: stretch; }
+  .flow > .box, .flow > .sticky { flex: 1; min-width: 0; }
+  .flow > .arr, .flow > .arr-lab { align-self: center; }
+  .flow > .arr { width: 48px; }
+  .mt { margin-top: clamp(16px, 3vw, 30px); }
+
+  ul.ck { list-style: none; padding: 0; margin: 6px 0 0; }
+  ul.ck li { display: flex; gap: 8px; align-items: flex-start; margin: 5px 0; }
+  ul.ck .ico { width: 24px; height: 24px; stroke-width: 6; margin-top: 1px; filter: none; }
+  ul.dots { margin: 6px 0 0; padding-left: 1.1em; }
+  ul.dots li { margin: 4px 0; }
+
+  .code { font-family: var(--mono); font-size: clamp(.72rem, 1.1vw, .9rem); line-height: 1.55; background: #1B3139; color: #E6EEF2; padding: 10px 12px; border-radius: 6px; white-space: pre; overflow-x: auto; margin-top: 8px; }
+  .code .k { color: #7FD6C8; } .code .s { color: #F2B880; } .code .f { color: #A9C7FF; } .code .c { color: #86A0AD; }
+  .ask { background: var(--paper); border: 2px solid var(--ink); border-radius: 14px 14px 14px 4px; padding: 7px 12px; margin: 8px 0; font-size: clamp(1.02rem, 1.4vw, 1.18rem); line-height: 1.25; }
+
+  .cmp { display: grid; grid-template-columns: auto 1fr 1fr; gap: 6px 14px; margin-top: 8px; }
+  .cmp > span { padding-top: 6px; border-top: 2px dashed color-mix(in srgb, var(--ink) 35%, transparent); }
+  .cmp .h { font-family: var(--brush); font-size: 1.25rem; border-top: none; padding-top: 0; }
+  .cmp > span[data-l]::before { content: attr(data-l); display: none; color: var(--muted); }
+
+  /* ---------- page ---------- */
+  .site-head { max-width: 1180px; margin: 0 auto; padding: clamp(28px, 6vw, 72px) clamp(18px, 4vw, 40px) 8px; display: flex; gap: clamp(16px, 3vw, 36px); align-items: center; }
+  .site-head h1 { font-family: var(--brush); font-weight: 400; font-size: clamp(2.8rem, 8vw, 5.6rem); line-height: .95; letter-spacing: .005em; }
+  .site-head h1::after {
+    content: ""; display: block; height: 10px; width: min(300px, 62%); margin-top: 8px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='10'%3E%3Cpath d='M0 5 q10 -8 20 0 t20 0' fill='none' stroke='%23FF3621' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x;
+  }
+  .site-head .tag { font-size: clamp(1.2rem, 2.2vw, 1.6rem); color: var(--muted); margin-top: 12px; max-width: 34em; }
+  .site-head .ico { width: clamp(72px, 12vw, 130px); height: clamp(72px, 12vw, 130px); }
+  .site-intro { max-width: 1180px; margin: 0 auto; padding: 8px clamp(18px, 4vw, 40px) 0; color: var(--muted); font-size: 1.05rem; }
+  .site-intro p + p { margin-top: 4px; }
+
+  main { max-width: 1180px; margin: 0 auto; padding: 0 clamp(18px, 4vw, 40px) 40px; }
+  .sec { margin-top: clamp(28px, 5vw, 52px); }
+  .sec h2 { font-family: var(--brush); font-weight: 400; font-size: clamp(1.8rem, 3.6vw, 2.5rem); }
+  .sec .sub { color: var(--muted); margin: 2px 0 16px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: clamp(16px, 2.4vw, 28px); }
+
+  a.card { position: relative; isolation: isolate; display: block; text-decoration: none; padding: 12px 12px 16px; transition: transform .18s ease; --f: var(--paper); }
+  a.card::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--f); border: 3px solid var(--ink); border-radius: 16px 12px 18px 11px / 12px 17px 11px 16px; filter: url(#rough); }
+  a.card:hover { transform: translateY(-3px) rotate(-.6deg); }
+  .thumb { position: relative; display: grid; place-items: center; height: 132px; border-radius: 10px; background-color: var(--fill, var(--yellow)); background-image: radial-gradient(color-mix(in srgb, var(--ink) 18%, transparent) 1px, transparent 1px); background-size: 16px 16px; margin-bottom: 10px; }
+  a.card h3 { font-family: var(--brush); font-weight: 400; font-size: 1.5rem; line-height: 1.05; }
+  a.card p { color: var(--muted); font-size: 1.02rem; margin-top: 4px; }
+  .badge { position: absolute; top: 8px; left: 8px; background: var(--lava); color: #fff; font-family: var(--brush); font-size: 1rem; padding: 1px 10px; border-radius: 999px; transform: rotate(-4deg); }
+  .num { position: absolute; bottom: 6px; right: 10px; font-family: var(--brush); font-size: 1.2rem; color: var(--muted); }
+
+  footer.site { max-width: 1180px; margin: 0 auto; padding: 8px clamp(18px, 4vw, 40px) 48px; color: var(--muted); font-size: 1rem; }
+
+  /* ---------- viewer ---------- */
+  .viewer { position: fixed; inset: 0; z-index: 20; background: var(--page); display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .viewer[hidden] { display: none; }
+  .vbar { display: flex; align-items: center; gap: 12px; padding: 10px clamp(12px, 3vw, 32px); border-bottom: 2px solid var(--ink); background: var(--page); }
+  .vbar .vt { flex: 1; min-width: 0; font-family: var(--brush); font-size: clamp(1.15rem, 2.4vw, 1.6rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .vbar .vc { color: var(--muted); font-size: 1rem; min-width: 3.6em; text-align: right; }
+  .vbar button { appearance: none; font: inherit; color: var(--ink); background: var(--paper); border: 2px solid var(--ink); border-radius: 999px; height: 40px; min-width: 40px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
+  .vbar button:hover:not(:disabled) { background: var(--yellow); }
+  .vbar button:disabled { opacity: .35; cursor: default; }
+  .vbar button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .vscroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: clamp(14px, 3vw, 36px) clamp(12px, 3vw, 36px) clamp(28px, 5vw, 56px); }
+
+  .sheet { position: relative; isolation: isolate; max-width: 1120px; margin: 0 auto; padding: clamp(20px, 4vw, 48px); background-color: var(--paper); background-image: radial-gradient(var(--dot) 1.2px, transparent 1.2px); background-size: 24px 24px; border-radius: 16px 12px 18px 11px / 12px 17px 11px 16px; }
+  .sheet::before { content: ""; position: absolute; inset: 0; z-index: -1; border: 3px solid var(--ink); border-radius: inherit; filter: url(#rough); }
+  .sheet p, .sheet li { font-size: clamp(1.08rem, 1.55vw, 1.28rem); }
+  .n-title { font-family: var(--brush); font-weight: 400; font-size: clamp(2.2rem, 5.4vw, 3.8rem); line-height: 1; }
+  .n-title.big { font-size: clamp(2.6rem, 7vw, 5rem); }
+  .n-sub { color: var(--muted); margin: 14px 0 clamp(18px, 3vw, 30px); max-width: 44em; font-size: clamp(1.15rem, 1.8vw, 1.4rem); }
+  .foot { margin-top: clamp(20px, 3vw, 32px); color: var(--muted); font-size: 1rem; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .foot a { text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  .ctr { text-align: center; }
+  .stairs { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(10px, 1.6vw, 18px); align-items: end; }
+  .stairs .s1 { min-height: 130px; } .stairs .s2 { min-height: 190px; } .stairs .s3 { min-height: 250px; }
+
+  @media (max-width: 1100px) {
+    .flow.w4 { flex-direction: column; }
+    .flow.w4 > .arr:not(.d) { transform: rotate(90deg); margin: 24px auto; }
+  }
+  @media (max-width: 1050px) { .g5 { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 820px) {
+    .g2, .g3, .g4, .g5, .g-eq, .stairs { grid-template-columns: 1fr; }
+    .flow { flex-direction: column; }
+    .flow > .arr:not(.d) { transform: rotate(90deg); margin: 24px auto; }
+    .stairs { align-items: stretch; }
+    .stairs .s1, .stairs .s2, .stairs .s3 { min-height: 0; }
+    .site-head { flex-direction: column; align-items: flex-start; }
+    .cmp { grid-template-columns: 1fr; }
+    .cmp .h:nth-child(-n+3) { display: none; }
+    .cmp > span:nth-child(3n+1) { font-family: var(--brush); font-size: 1.2rem; }
+    .cmp > span[data-l]::before { display: inline; }
+    .op { transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { a.card { transition: none; } a.card:hover { transform: none; } }
+</style>
+</head>
+<body>
+
+<!-- SVG sprite: rough-ink filters + doodle icons -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="rough" x="-3%" y="-3%" width="106%" height="106%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="4" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="rough2" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="9" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+
+  <symbol id="i-brick" viewBox="0 0 64 64">
+    <rect x="5" y="38" width="25" height="16" rx="2" style="fill:var(--fa)"/><rect x="34" y="38" width="25" height="16" rx="2" style="fill:var(--fa)"/>
+    <rect x="19" y="20" width="26" height="16" rx="2" style="fill:var(--fa)"/><path d="M12 45h6M41 45h6M27 27h10"/>
+  </symbol>
+  <symbol id="i-grid" viewBox="0 0 64 64">
+    <rect x="8" y="10" width="48" height="44" rx="3" style="fill:var(--fa)"/><path d="M8 25H56M8 40H56M24 10V54M40 10V54"/>
+  </symbol>
+  <symbol id="i-waves" viewBox="0 0 64 64">
+    <path d="M6 20q6.5-8 13 0t13 0t13 0t13 0"/><path d="M6 34q6.5-8 13 0t13 0t13 0t13 0"/><path d="M6 48q6.5-8 13 0t13 0t13 0t13 0"/>
+  </symbol>
+  <symbol id="i-house" viewBox="0 0 64 64">
+    <path d="M12 28V56H52V28" style="fill:var(--fa)"/><path d="M5 30L32 7L59 30"/>
+    <path d="M14 42q4.5-5 9 0t9 0t9 0t9 0"/><path d="M14 51q4.5-5 9 0t9 0t9 0t9 0"/>
+    <path d="M26 16h4v4h-4zM34 16h4v4h-4z" style="stroke-width:2.5"/>
+  </symbol>
+  <symbol id="i-cloud" viewBox="0 0 64 64">
+    <path d="M18 46H47a10 10 0 0 0 1-19.9A14 14 0 0 0 21 24a11 11 0 0 0-3 22Z" style="fill:var(--fa)"/>
+  </symbol>
+  <symbol id="i-gear" viewBox="0 0 64 64">
+    <circle cx="32" cy="32" r="18" style="fill:var(--fa)"/><circle cx="32" cy="32" r="7"/>
+    <path d="M50 32h7M44.7 44.7l5 5M32 50v7M19.3 44.7l-5 5M14 32H7M19.3 19.3l-5-5M32 14V7M44.7 19.3l5-5"/>
+  </symbol>
+  <symbol id="i-db" viewBox="0 0 64 64">
+    <path d="M12 14V48c0 4 9 7 20 7s20-3 20-7V14" style="fill:var(--fa)"/><ellipse cx="32" cy="14" rx="20" ry="7" style="fill:var(--fa)"/>
+    <path d="M12 31c0 4 9 7 20 7s20-3 20-7"/>
+  </symbol>
+  <symbol id="i-folder" viewBox="0 0 64 64">
+    <path d="M6 16h20l6 7h26v31H6z" style="fill:var(--fa)"/><path d="M6 27h52"/>
+  </symbol>
+  <symbol id="i-cluster" viewBox="0 0 64 64">
+    <rect x="9" y="8" width="46" height="14" rx="3" style="fill:var(--fa)"/><rect x="9" y="25" width="46" height="14" rx="3" style="fill:var(--fa)"/><rect x="9" y="42" width="46" height="14" rx="3" style="fill:var(--fa)"/>
+    <circle cx="17" cy="15" r="1.5"/><circle cx="17" cy="32" r="1.5"/><circle cx="17" cy="49" r="1.5"/><path d="M28 15h20M28 32h20M28 49h20"/>
+  </symbol>
+  <symbol id="i-notebook" viewBox="0 0 64 64">
+    <rect x="16" y="6" width="40" height="52" rx="4" style="fill:var(--fa)"/><path d="M8 16h14M8 28h14M8 40h14M8 52h14"/><path d="M30 20h18M30 32h18M30 44h12"/>
+  </symbol>
+  <symbol id="i-spark" viewBox="0 0 64 64">
+    <path d="M32 5C34 24 40 30 59 32C40 34 34 40 32 59C30 40 24 34 5 32C24 30 30 24 32 5Z" style="fill:var(--fa)"/>
+  </symbol>
+  <symbol id="i-chart" viewBox="0 0 64 64">
+    <path d="M8 8V56H58"/><rect x="16" y="34" width="9" height="20" style="fill:var(--fa)"/><rect x="30" y="22" width="9" height="32" style="fill:var(--fa)"/><rect x="44" y="12" width="9" height="42" style="fill:var(--fa)"/>
+  </symbol>
+  <symbol id="i-chat" viewBox="0 0 64 64">
+    <path d="M7 10h50v32H30L17 54V42H7z" style="fill:var(--fa)"/><path d="M17 21h30M17 31h20"/>
+  </symbol>
+  <symbol id="i-lamp" viewBox="0 0 64 64">
+    <path d="M9 42Q9 29 32 29Q55 29 55 42Z" style="fill:var(--fa)"/><path d="M22 42L20 53H44L42 42" style="fill:var(--fa)"/>
+    <path d="M55 35Q61 33 62 23"/><path d="M9 36Q1 36 3 46Q6 51 12 47"/><path d="M27 29Q32 23 37 29"/>
+    <path d="M32 21q-7-5 0-10t0-8" style="stroke-width:3"/>
+  </symbol>
+  <symbol id="i-person" viewBox="0 0 64 64">
+    <circle cx="32" cy="17" r="9" style="fill:var(--fa)"/><path d="M14 57c0-14 8-22 18-22s18 8 18 22" style="fill:var(--fa)"/>
+  </symbol>
+  <symbol id="i-check" viewBox="0 0 64 64"><path d="M11 34L26 48L53 15"/></symbol>
+  <symbol id="i-x" viewBox="0 0 64 64"><path d="M14 14L50 50M50 14L14 50"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 64 64">
+    <path d="M32 6L54 14V32C54 46 44 54 32 58C20 54 10 46 10 32V14Z" style="fill:var(--fa)"/><path d="M22 32L30 40L43 24"/>
+  </symbol>
+  <symbol id="i-book" viewBox="0 0 64 64">
+    <path d="M32 14C24 8 14 8 6 12V52C14 48 24 48 32 54C40 48 50 48 58 52V12C50 8 40 8 32 14Z" style="fill:var(--fa)"/><path d="M32 14V54"/>
+  </symbol>
+  <symbol id="i-code" viewBox="0 0 64 64">
+    <rect x="4" y="10" width="56" height="44" rx="5" style="fill:var(--fa)"/><path d="M20 23L11 32L20 41M44 23L53 32L44 41M35 20L29 44"/>
+  </symbol>
+
+  <symbol id="a-r" viewBox="0 0 80 24"><path d="M4 13C24 8 44 16 74 12M62 4L75 12L61 20"/></symbol>
+  <symbol id="a-d" viewBox="0 0 24 60"><path d="M13 4C8 20 16 34 12 54M4 44L12 56L20 44"/></symbol>
+</svg>
+
+<header class="site-head">
+  <svg class="ico" aria-hidden="true"><use href="#i-brick"/></svg>
+  <div>
+    <h1>Databricks Notes</h1>
+    <p class="tag">Simple drawings illustrating the main concepts of Databricks, with a look at how Genie lets you ask your data questions in plain language.</p>
+  </div>
+</header>
+<div class="site-intro">
+  <p>Click a note to open it, then use the arrow keys to flip through, like slides.</p>
+  <p>Based on Databricks documentation and sample datasets.</p>
+</div>
+
+<main id="gallery">
+  <section class="sec" aria-labelledby="h-new">
+    <h2 id="h-new">New series: Meet Genie</h2>
+    <p class="sub">Ask your data questions in plain language.</p>
+    <div class="grid" id="grid-new"></div>
+  </section>
+  <section class="sec" aria-labelledby="h-all">
+    <h2 id="h-all">Databricks Notes</h2>
+    <p class="sub">The platform, from the lakehouse idea to your first query.</p>
+    <div class="grid" id="grid-main"></div>
+  </section>
+</main>
+<footer class="site">
+  <p>Unofficial learning notes, not affiliated with or endorsed by Databricks. Product names and pricing reflect September 2026 and may change.</p>
+</footer>
+
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Note viewer" hidden>
+  <div class="vbar">
+    <button id="vclose" type="button" aria-label="Back to all notes"><svg viewBox="0 0 24 24"><path d="M15 5L8 12L15 19"/></svg><span>All notes</span></button>
+    <div class="vt" id="vtitle"></div>
+    <span class="vc" id="vcount" aria-live="polite"></span>
+    <button id="vprev" type="button" aria-label="Previous note"><svg viewBox="0 0 24 24"><path d="M15 5L8 12L15 19"/></svg></button>
+    <button id="vnext" type="button" aria-label="Next note"><svg viewBox="0 0 24 24"><path d="M9 5L16 12L9 19"/></svg></button>
+  </div>
+  <div class="vscroll" id="vscroll"><article class="sheet" id="vnote"></article></div>
+</div>
+
+<!-- ================= NOTES ================= -->
+
+<template data-note="1" data-title="Welcome to Databricks Notes!" data-desc="How these notes work and what is inside." data-icon="i-brick" data-color="yellow">
+  <h2 class="n-title big">Welcome to Databricks Notes!</h2>
+  <p class="n-sub">Simple drawings of the main ideas in Databricks, from the lakehouse to asking questions with Genie. No prior knowledge needed.</p>
+  <div class="g3">
+    <div class="box c-yellow"><div class="hd"><svg class="ico fa-none"><use href="#i-book"/></svg><h3 class="ttl">Read in order</h3></div><p>Start with the lakehouse idea and end with your first Genie question.</p></div>
+    <div class="box c-mint"><div class="hd"><svg class="ico fa-none"><use href="#i-lamp"/></svg><h3 class="ttl">Meet Genie</h3></div><p>The later notes show how anyone can query data by just asking, and end with a hands-on exercise.</p></div>
+    <div class="box c-sky"><div class="hd"><svg class="ico fa-none"><use href="#i-notebook"/></svg><h3 class="ttl">Flip like slides</h3></div><p>Use the left and right arrow keys, or the buttons at the top.</p></div>
+  </div>
+  <p class="foot">Sources: Databricks documentation.</p>
+</template>
+
+<template data-note="2" data-title="What is Databricks?" data-desc="Workspace, notebooks, Spark, Delta Lake and scale: the five core pieces." data-icon="i-cloud" data-color="lav">
+  <h2 class="n-title">What is Databricks?</h2>
+  <p class="n-sub">Think <span class="hl">platform</span>, not framework or Python library.</p>
+  <div class="ctr" style="display:flex;flex-direction:column;align-items:center">
+    <div class="box c-lav" style="max-width:560px"><div class="hd" style="justify-content:center"><svg class="ico lg fa-none"><use href="#i-cloud"/></svg><h3 class="ttl" style="font-size:2.2rem">Databricks</h3></div><p>One cloud platform for data engineering, analytics, data science and ML.</p></div>
+    <svg class="arr d" aria-hidden="true"><use href="#a-d"/></svg>
+  </div>
+  <div class="g5">
+    <div class="box c-yellow"><div class="hd"><svg class="ico sm fa-none"><use href="#i-folder"/></svg><h3 class="ttl">Workspace</h3></div><p>One web place where teams collaborate.</p></div>
+    <div class="box c-mint"><div class="hd"><svg class="ico sm fa-none"><use href="#i-notebook"/></svg><h3 class="ttl">Notebooks</h3></div><p>Jupyter-style, built for teamwork.</p></div>
+    <div class="box c-pink"><div class="hd"><svg class="ico sm fa-none"><use href="#i-spark"/></svg><h3 class="ttl">Apache Spark</h3></div><p>The engine for huge, parallel jobs.</p></div>
+    <div class="box c-sky"><div class="hd"><svg class="ico sm fa-none"><use href="#i-db"/></svg><h3 class="ttl">Delta Lake</h3></div><p>ACID transactions make lake data reliable.</p></div>
+    <div class="box c-lav"><div class="hd"><svg class="ico sm fa-none"><use href="#i-cluster"/></svg><h3 class="ttl">Scale out</h3></div><p>Add machines as your data grows.</p></div>
+  </div>
+  <div class="g2 mt" style="align-items:center">
+    <div>
+      <h3 class="ttl" style="margin-bottom:8px">One place for everyone</h3>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <div class="ctr"><svg class="ico fa-pink"><use href="#i-person"/></svg><div class="small">Data engineers</div></div>
+        <div class="ctr"><svg class="ico fa-mint"><use href="#i-person"/></svg><div class="small">Analysts</div></div>
+        <div class="ctr"><svg class="ico fa-sky"><use href="#i-person"/></svg><div class="small">Data scientists</div></div>
+        <div class="ctr"><svg class="ico fa-lav"><use href="#i-person"/></svg><div class="small">ML engineers</div></div>
+      </div>
+    </div>
+    <div class="sticky"><p>Several people can edit the <span class="hl">same notebook at the same time</span>, so there is less hand-off and less context switching.</p></div>
+  </div>
+</template>
+
+<template data-note="3" data-title="Why the lakehouse?" data-desc="How data warehouses and data lakes became one lakehouse." data-icon="i-house" data-color="mint">
+  <h2 class="n-title">Why the lakehouse?</h2>
+  <p class="n-sub">Two stacks became one.</p>
+  <div class="g-eq">
+    <div class="box c-sky">
+      <div class="hd"><svg class="ico fa-none"><use href="#i-grid"/></svg><h3 class="ttl">Data warehouse</h3></div>
+      <ul class="ck">
+        <li><svg class="ico yes"><use href="#i-check"/></svg>Structured rows and columns</li>
+        <li><svg class="ico yes"><use href="#i-check"/></svg>Great for BI and analytics</li>
+        <li><svg class="ico no"><use href="#i-x"/></svg>Expensive</li>
+        <li><svg class="ico no"><use href="#i-x"/></svg>Poor fit for data science</li>
+      </ul>
+    </div>
+    <div class="op" aria-hidden="true">+</div>
+    <div class="box c-yellow">
+      <div class="hd"><svg class="ico fa-none"><use href="#i-waves"/></svg><h3 class="ttl">Data lake</h3></div>
+      <ul class="ck">
+        <li><svg class="ico yes"><use href="#i-check"/></svg>Nearly any type of data</li>
+        <li><svg class="ico yes"><use href="#i-check"/></svg>Flexible and cheap to store</li>
+        <li><svg class="ico no"><use href="#i-x"/></svg>Messy</li>
+        <li><svg class="ico no"><use href="#i-x"/></svg>Can turn into a data swamp</li>
+      </ul>
+    </div>
+    <div class="op" aria-hidden="true">=</div>
+    <div class="box c-mint">
+      <div class="hd"><svg class="ico lg fa-none"><use href="#i-house"/></svg><h3 class="ttl" style="font-size:2rem">Lakehouse</h3></div>
+      <ul class="ck">
+        <li><svg class="ico yes"><use href="#i-check"/></svg>Analytics, engineering and ML on the same data</li>
+        <li><svg class="ico yes"><use href="#i-check"/></svg>One platform, one copy to manage</li>
+      </ul>
+    </div>
+  </div>
+  <div class="sticky mt" style="max-width:640px"><p><span class="hl p">Before:</span> warehouses for BI and lakes for machine learning, two architectures to keep in sync. <span class="hl m">Now:</span> a lakehouse, which is what Databricks is known for.</p></div>
+</template>
+
+<template data-note="4" data-title="Control plane vs compute plane" data-desc="Where Databricks manages things, and where your data is processed." data-icon="i-gear" data-color="sky">
+  <h2 class="n-title">Control plane vs compute plane</h2>
+  <p class="n-sub">Who manages what, and where the work happens.</p>
+  <div class="g2" style="align-items:center">
+    <div style="display:flex;flex-direction:column;align-items:stretch">
+      <div class="box c-sky">
+        <div class="hd"><svg class="ico fa-none"><use href="#i-cloud"/></svg><div><h3 class="ttl">Control plane</h3><div class="small">Managed by Databricks</div></div></div>
+        <ul class="dots"><li>Web app and workspace UI</li><li>Notebooks</li><li>Job scheduling</li><li>Cluster management</li></ul>
+      </div>
+      <div class="arr-lab" style="margin:6px 0"><svg class="arr d" aria-hidden="true"><use href="#a-d"/></svg><span>sends work to</span></div>
+      <div class="box c-pink">
+        <div class="hd"><svg class="ico fa-none"><use href="#i-gear"/></svg><div><h3 class="ttl">Compute plane</h3><div class="small">Where your data is processed</div></div></div>
+        <ul class="dots"><li>Clusters</li><li>SQL warehouses</li></ul>
+      </div>
+      <div class="arr-lab" style="margin:6px 0"><svg class="arr d" aria-hidden="true"><use href="#a-d"/></svg><span>reads from</span></div>
+      <div class="box c-yellow">
+        <div class="hd"><svg class="ico fa-none"><use href="#i-db"/></svg><div><h3 class="ttl">Your cloud storage</h3><div class="small">S3, Azure Blob Storage, Google Cloud Storage</div></div></div>
+      </div>
+    </div>
+    <div class="sticky tilt-r">
+      <h3 class="ttl" style="margin-bottom:6px">Think of a restaurant</h3>
+      <ul class="dots">
+        <li><span class="hl">Control plane</span> is front of house: the menu, the orders, the manager.</li>
+        <li><span class="hl p">Compute plane</span> is the kitchen, where the cooking happens.</li>
+        <li><span class="hl m">Storage</span> is the pantry.</li>
+      </ul>
+      <p class="small" style="margin-top:10px">An analogy, not an official diagram.</p>
+    </div>
+  </div>
+</template>
+
+<template data-note="5" data-title="Workspace, clusters and notebooks" data-desc="The three things you touch first, and how notebooks differ from Jupyter." data-icon="i-notebook" data-color="mint">
+  <h2 class="n-title">Workspace, clusters and notebooks</h2>
+  <p class="n-sub">The three things you touch first.</p>
+  <div class="g3">
+    <div class="box c-yellow"><div class="hd"><svg class="ico fa-none"><use href="#i-folder"/></svg><h3 class="ttl">Workspace</h3></div><p>The hub for notebooks, clusters, tables, libraries and dashboards. Also does job scheduling and notebook version control.</p></div>
+    <div class="box c-pink"><div class="hd"><svg class="ico fa-none"><use href="#i-cluster"/></svg><h3 class="ttl">Clusters</h3></div><p>The computing resources that run your code: Spark data processing, model training and ETL. Pick a Spark version and wait a few minutes.</p></div>
+    <div class="box c-mint"><div class="hd"><svg class="ico fa-none"><use href="#i-notebook"/></svg><h3 class="ttl">Notebooks</h3></div><p>Write code in cells, in several languages, on top of a running cluster.</p></div>
+  </div>
+  <div class="box c-sky mt">
+    <h3 class="ttl">Jupyter vs Databricks notebook</h3>
+    <div class="cmp">
+      <span class="h"></span><span class="h">Jupyter</span><span class="h">Databricks</span>
+      <span>Runs on</span><span data-l="Jupyter: ">Your machine or a server you manage</span><span data-l="Databricks: ">A cluster that scales with the workload</span>
+      <span>Sharing</span><span data-l="Jupyter: ">Manual</span><span data-l="Databricks: ">Built in, with real-time co-editing</span>
+      <span>Spark</span><span data-l="Jupyter: ">You manage sessions and dependencies</span><span data-l="Databricks: ">Native, managed for you</span>
+    </div>
+  </div>
+  <p class="foot"><svg class="ico sm fa-none"><use href="#i-check"/></svg> Just a CSV and pandas on your laptop? Jupyter is simpler. Databricks pays off at enterprise scale.</p>
+</template>
+
+<template data-note="6" data-title="Query your first table" data-desc="Find a table in the samples catalog and query it with SQL or Python." data-icon="i-db" data-color="pink">
+  <h2 class="n-title">Query your first table</h2>
+  <p class="n-sub">Workspaces come with a <span class="hl">samples</span> catalog, the fastest way to get real data to play with.</p>
+  <div class="box c-yellow">
+    <h3 class="ttl">Every table has a three-level name</h3>
+    <div class="flow" style="margin-top:10px;align-items:center">
+      <div class="box c-sky ctr"><h3 class="ttl">samples</h3><p class="small">catalog</p></div>
+      <div class="op" aria-hidden="true">.</div>
+      <div class="box c-mint ctr"><h3 class="ttl">nyctaxi</h3><p class="small">schema</p></div>
+      <div class="op" aria-hidden="true">.</div>
+      <div class="box c-pink ctr"><h3 class="ttl">trips</h3><p class="small">table</p></div>
+    </div>
+  </div>
+  <div class="g2 mt">
+    <div class="box c-sky"><h3 class="ttl">Run SQL</h3>
+<div class="code"><span class="k">SELECT</span> * <span class="k">FROM</span> samples.nyctaxi.trips <span class="k">LIMIT</span> 10</div></div>
+    <div class="box c-mint"><h3 class="ttl">Or Python</h3>
+<div class="code"><span class="f">display</span>(spark.read.<span class="f">table</span>(<span class="s">"samples.nyctaxi.trips"</span>).<span class="f">limit</span>(10))</div></div>
+  </div>
+  <div class="g2 mt" style="align-items:center">
+    <div class="sticky"><p>The trips table holds <span class="hl">taxi rides in New York City</span>. The Genie exercise later uses this same table.</p></div>
+    <div class="sticky sky tilt-r"><p>Other sample schemas: <span class="hl m">tpch</span>, <span class="hl m">tpcds_sf1</span> and <span class="hl m">wanderbricks</span>, a simulated travel-booking platform.</p></div>
+  </div>
+  <p class="foot">The query comes from the Databricks sample datasets docs. Availability can vary by workspace.</p>
+</template>
+
+<template data-note="7" data-title="The medallion architecture" data-desc="Bronze, silver and gold: how data improves in layers." data-icon="i-spark" data-color="yellow">
+  <h2 class="n-title">The medallion architecture</h2>
+  <p class="n-sub">Data gets better as it moves through three layers.</p>
+  <div class="stairs">
+    <div class="box metal m-bronze s1"><h3 class="ttl">Bronze</h3><p>Raw data, landed as it arrives.</p></div>
+    <div class="box metal m-silver s2"><h3 class="ttl">Silver</h3><p>Cleaned, validated and joined. Ready for analysis.</p></div>
+    <div class="box metal m-gold s3"><div class="hd"><h3 class="ttl">Gold</h3><svg class="ico sm fa-none" style="stroke:#1B3139"><use href="#i-spark"/></svg></div><p>Business-ready tables that feed dashboards and ML.</p></div>
+  </div>
+  <div class="box c-lav mt"><div class="hd" style="margin:0"><svg class="ico fa-none"><use href="#i-db"/></svg><div><h3 class="ttl">Delta Lake underneath</h3><p>ACID transactions keep every layer reliable.</p></div></div></div>
+  <div class="g2 mt" style="align-items:center">
+    <div class="sticky"><p><span class="hl">Pipelines and Workflows</span> move data from layer to layer, on a schedule.</p></div>
+    <div class="sticky sky tilt-r"><p><span class="hl m">Idea with the taxi table:</span> raw trips are Bronze, trips with valid fares are Silver, daily revenue per pickup zip is Gold.</p></div>
+  </div>
+</template>
+
+<template data-note="8" data-title="Databricks SQL" data-desc="Write queries, draw charts and build dashboards on the lakehouse." data-icon="i-chart" data-color="sky">
+  <h2 class="n-title">Databricks SQL</h2>
+  <p class="n-sub">The warehouse side of the lakehouse, for BI.</p>
+  <div class="flow">
+    <div class="box c-yellow">
+      <div class="hd"><svg class="ico fa-none"><use href="#i-code"/></svg><h3 class="ttl">Write</h3></div>
+      <p>Run SQL queries against lakehouse tables in the SQL editor.</p>
+    </div>
+    <svg class="arr" aria-hidden="true"><use href="#a-r"/></svg>
+    <div class="box c-mint">
+      <div class="hd"><svg class="ico fa-none"><use href="#i-chart"/></svg><h3 class="ttl">Visualize</h3></div>
+      <p>Turn results into charts.</p>
+    </div>
+    <svg class="arr" aria-hidden="true"><use href="#a-r"/></svg>
+    <div class="box c-sky">
+      <div class="hd"><svg class="ico fa-none"><use href="#i-grid"/></svg><h3 class="ttl">Share</h3></div>
+      <p>Combine charts into interactive dashboards.</p>
+    </div>
+  </div>
+  <div class="g2 mt" style="align-items:center">
+    <div class="box c-pink"><div class="hd"><svg class="ico fa-none"><use href="#i-cluster"/></svg><h3 class="ttl">SQL-optimized compute</h3></div><p>Queries run on a SQL warehouse, tuned for BI workloads.</p></div>
+    <div class="sticky tilt-r"><div class="hd"><svg class="ico fa-none"><use href="#i-lamp"/></svg><h3 class="ttl">Coming up</h3></div><p>Every AI/BI dashboard includes an integrated <span class="hl m">Genie</span> space for follow-up questions. See the next notes.</p></div>
+  </div>
+</template>
+
+<template data-note="9" data-series="genie" data-title="Meet Genie" data-desc="Genie One, Genie Agents and Genie Code in one picture." data-icon="i-lamp" data-color="lav">
+  <h2 class="n-title">Meet Genie</h2>
+  <p class="n-sub">Ask questions about your data in plain language and get <span class="hl m">answers grounded in your own tables</span>.</p>
+  <div class="g3">
+    <div class="box c-sky"><div class="hd"><svg class="ico fa-none"><use href="#i-chat"/></svg><h3 class="ttl">Genie One</h3></div><p><span class="small">For business users</span></p><p>A simplified interface for business users to find data assets and ask questions. Also available on iOS and Android.</p></div>
+    <div class="box c-mint"><div class="hd"><svg class="ico fa-none"><use href="#i-db"/></svg><h3 class="ttl">Genie Agents</h3></div><p><span class="small">Set up by data teams</span></p><p>Trusted data, metrics and business rules for one domain. Formerly called Genie Spaces.</p></div>
+    <div class="box c-yellow"><div class="hd"><svg class="ico fa-none"><use href="#i-code"/></svg><h3 class="ttl">Genie Code</h3></div><p><span class="small">For developers</span></p><p>An AI coding and data assistant inside notebooks, pipelines and dashboards.</p></div>
+  </div>
+  <div class="box c-lav mt"><div class="hd" style="margin:0"><svg class="ico fa-none"><use href="#i-shield"/></svg><p>Every answer is grounded in your organization's data and <span class="hl">governed through Unity Catalog</span>.</p></div></div>
+  <div class="sticky mt" style="max-width:560px"><p>Older material sometimes says "AI/BI Genie" and "Genie space". Same idea, older names.</p></div>
+</template>
+
+<template data-note="10" data-series="genie" data-title="How Genie answers a question" data-desc="From plain-language question to SQL, table and chart." data-icon="i-chat" data-color="mint">
+  <h2 class="n-title">How Genie answers a question</h2>
+  <p class="n-sub">Four steps, and the SQL is always there to check.</p>
+  <div class="flow w4">
+    <div class="box c-sky">
+      <div class="hd"><svg class="ico fa-none"><use href="#i-chat"/></svg><h3 class="ttl">1. Ask</h3></div>
+      <p>"Which pickup zip codes have the highest average fare?"</p>
+      <p class="small" style="margin-top:6px">Example question, on the taxi table from note 6. Genie's actual SQL may differ.</p>
+    </div>
+    <svg class="arr" aria-hidden="true"><use href="#a-r"/></svg>
+    <div class="box c-yellow">
+      <div class="hd"><svg class="ico fa-none"><use href="#i-book"/></svg><h3 class="ttl">2. Read context</h3></div>
+      <ul class="dots"><li>Table and column names</li><li>Descriptions</li><li>Instructions</li><li>Sample queries</li></ul>
+    </div>
+    <svg class="arr" aria-hidden="true"><use href="#a-r"/></svg>
+    <div class="box c-pink">
+      <div class="hd"><svg class="ico fa-none"><use href="#i-code"/></svg><h3 class="ttl">3. Write SQL</h3></div>
+<div class="code"><span class="k">SELECT</span> pickup_zip,
+  <span class="f">AVG</span>(fare_amount) <span class="k">AS</span> avg_fare
+<span class="k">FROM</span> samples.nyctaxi.trips
+<span class="k">GROUP BY</span> pickup_zip
+<span class="k">ORDER BY</span> avg_fare <span class="k">DESC</span></div>
+    </div>
+    <svg class="arr" aria-hidden="true"><use href="#a-r"/></svg>
+    <div class="box c-mint">
+      <div class="hd"><svg class="ico fa-none"><use href="#i-chart"/></svg><h3 class="ttl">4. Answer</h3></div>
+      <ul class="dots"><li>The SQL</li><li>A results table</li><li>A chart, where it fits</li></ul>
+    </div>
+  </div>
+  <div class="sticky mt" style="max-width:640px"><p><span class="hl m">No SQL needed to ask.</span> But the answer is backed by SQL you can read, so you can check it instead of just trusting it. Give feedback and it helps improve the agent. <span class="hl">Try it yourself in the next two notes.</span></p></div>
+</template>
+
+<template data-note="11" data-series="genie" data-title="Exercise: build a taxi Genie" data-desc="Part 1: set up a Genie Agent on the samples taxi table." data-icon="i-lamp" data-color="yellow">
+  <h2 class="n-title">Exercise: build a taxi Genie</h2>
+  <p class="n-sub">Part 1 of 2. Set up a Genie Agent on <span class="hl">samples.nyctaxi.trips</span>, the table from note 6.</p>
+  <div class="g3">
+    <div class="box c-sky"><div class="hd"><svg class="ico fa-none"><use href="#i-code"/></svg><h3 class="ttl">1. Preview the data</h3></div>
+<div class="code"><span class="k">SELECT</span> * <span class="k">FROM</span> samples.nyctaxi.trips <span class="k">LIMIT</span> 10</div>
+      <p class="small" style="margin-top:6px">Run it in the SQL editor and note the columns.</p></div>
+    <div class="box c-yellow"><div class="hd"><svg class="ico fa-none"><use href="#i-lamp"/></svg><h3 class="ttl">2. Create the agent</h3></div><p>Click <span class="hl">Genie Agents</span> in the sidebar, then <span class="hl">New</span> in the upper right.</p></div>
+    <div class="box c-mint"><div class="hd"><svg class="ico fa-none"><use href="#i-db"/></svg><h3 class="ttl">3. Pick the data</h3></div><p>Choose <span class="hl">samples.nyctaxi.trips</span> as the data source, then click <span class="hl">Create</span>.</p></div>
+    <div class="box c-pink"><div class="hd"><svg class="ico fa-none"><use href="#i-spark"/></svg><h3 class="ttl">4. Review suggestions</h3></div><p>Genie Code opens on its own and suggests table descriptions and example queries. Accept the ones that look right.</p></div>
+    <div class="box c-lav"><div class="hd"><svg class="ico fa-none"><use href="#i-gear"/></svg><h3 class="ttl">5. Configure</h3></div><p>Under <span class="hl">Configure &gt; Settings</span>, set a title like "NYC taxi trips", pick a serverless SQL warehouse and add a one-line description.</p></div>
+    <div class="box c-yellow"><div class="hd"><svg class="ico fa-none"><use href="#i-grid"/></svg><h3 class="ttl">6. Inspect the table</h3></div><p>Under <span class="hl">Configure &gt; Data</span>, click the table. Overview lists the columns, Sample data shows rows.</p></div>
+  </div>
+  <div class="g2 mt" style="align-items:center">
+    <div class="sticky"><h3 class="ttl" style="margin-bottom:4px">Before you start</h3><ul class="dots"><li>Data registered in Unity Catalog (the samples catalog counts)</li><li>A pro or serverless SQL warehouse you can use</li><li>The Databricks SQL entitlement</li></ul></div>
+    <div class="sticky sky tilt-r"><p>Can't see the samples catalog? Check Catalog Explorer, or ask your workspace admin. Then head to <span class="hl m">part 2</span>.</p></div>
+  </div>
+</template>
+
+<template data-note="12" data-series="genie" data-title="Exercise: ask, check, improve" data-desc="Part 2: question the taxi Genie, verify its SQL, then teach it a definition." data-icon="i-chat" data-color="sky">
+  <h2 class="n-title">Exercise: ask, check, improve</h2>
+  <p class="n-sub">Part 2 of 2. Put your taxi Genie through its paces.</p>
+  <div class="g3">
+    <div class="box c-sky">
+      <div class="hd"><svg class="ico fa-none"><use href="#i-chat"/></svg><h3 class="ttl">Ask</h3></div>
+      <p class="small">In this order:</p>
+      <div class="ask">1. How many trips are in the table?</div>
+      <div class="ask">2. What is the average fare amount?</div>
+      <div class="ask">3. Which pickup zip codes have the highest average fare?</div>
+      <div class="ask">4. Show the top 10 as a bar chart.</div>
+    </div>
+    <div class="box c-yellow">
+      <div class="hd"><svg class="ico fa-none"><use href="#i-check"/></svg><h3 class="ttl">Check</h3></div>
+      <p>For question 3, open the SQL Genie wrote and compare it with your own:</p>
+<div class="code"><span class="k">SELECT</span> pickup_zip,
+  <span class="f">AVG</span>(fare_amount) <span class="k">AS</span> avg_fare
+<span class="k">FROM</span> samples.nyctaxi.trips
+<span class="k">GROUP BY</span> pickup_zip
+<span class="k">ORDER BY</span> avg_fare <span class="k">DESC</span>
+<span class="k">LIMIT</span> 10</div>
+      <ul class="ck">
+        <li><svg class="ico yes"><use href="#i-check"/></svg>Right table and columns?</li>
+        <li><svg class="ico yes"><use href="#i-check"/></svg>Same numbers as your query?</li>
+        <li><svg class="ico yes"><use href="#i-check"/></svg>Does the chart make sense?</li>
+      </ul>
+    </div>
+    <div class="box c-mint">
+      <div class="hd"><svg class="ico fa-none"><use href="#i-lamp"/></svg><h3 class="ttl">Improve</h3></div>
+      <div class="ask">5. How many long trips are there?</div>
+      <p>Genie has to guess what "long" means. Now teach it: under <span class="hl">Configure &gt; Instructions</span>, add a text instruction.</p>
+      <div class="sticky mint" style="margin-top:10px"><p>"A long trip is a trip with trip_distance above 5."</p></div>
+      <p style="margin-top:10px">Ask question 5 again and compare the SQL.</p>
+    </div>
+  </div>
+  <div class="g2 mt" style="align-items:center">
+    <div class="sticky"><p>Your answers may differ from these. Genie can write the SQL differently each time, which is exactly <span class="hl">why you check it</span>.</p></div>
+    <div class="sticky sky tilt-r"><p><span class="hl m">Stretch:</span> ask which hour of the day is busiest. Check the Sample data tab first for the pickup time column name.</p></div>
+  </div>
+</template>
+
+<template data-note="13" data-title="Make Genie trustworthy" data-desc="How data teams set up and test a Genie you can rely on." data-icon="i-shield" data-color="pink">
+  <h2 class="n-title">Make Genie trustworthy</h2>
+  <p class="n-sub">Genie is only as good as the context behind it. Data teams shape that context, then measure it.</p>
+  <div class="g2">
+    <div class="box c-yellow">
+      <div class="hd"><svg class="ico fa-none"><use href="#i-notebook"/></svg><h3 class="ttl">Set it up</h3></div>
+      <ul class="ck">
+        <li><svg class="ico yes"><use href="#i-check"/></svg>Pick the datasets for one business domain</li>
+        <li><svg class="ico yes"><use href="#i-check"/></svg>Annotate tables and columns with clear names and descriptions</li>
+        <li><svg class="ico yes"><use href="#i-check"/></svg>Add sample queries and text instructions</li>
+        <li><svg class="ico yes"><use href="#i-check"/></svg>Define metrics, business rules and verified answers</li>
+      </ul>
+    </div>
+    <div class="box c-mint">
+      <div class="hd"><svg class="ico fa-none"><use href="#i-shield"/></svg><h3 class="ttl">Keep it accurate</h3></div>
+      <ul class="ck">
+        <li><svg class="ico yes"><use href="#i-check"/></svg><span><span class="hl">Benchmarks</span>: curated questions with the expected SQL</span></li>
+        <li><svg class="ico yes"><use href="#i-check"/></svg>Collect feedback on responses</li>
+        <li><svg class="ico yes"><use href="#i-check"/></svg>Let users ask for review, so admins can verify or correct</li>
+        <li><svg class="ico yes"><use href="#i-check"/></svg>Update as your data and questions change</li>
+      </ul>
+    </div>
+  </div>
+  <div class="g2 mt" style="align-items:center">
+    <div class="sticky"><p>In the exercise, the "long trip" instruction was exactly this kind of <span class="hl m">context</span>.</p></div>
+    <div class="sticky sky tilt-r"><p><span class="hl">Bonus:</span> drag an Excel or CSV file into Genie to combine it with governed tables for a quick ad-hoc analysis.</p></div>
+  </div>
+</template>
+
+<template data-note="14" data-title="Where to go next" data-desc="Four ways to keep learning, from the docs to hands-on practice." data-icon="i-book" data-color="sky">
+  <h2 class="n-title">Where to go next</h2>
+  <p class="n-sub">Pick the one that fits how you learn.</p>
+  <div class="g2">
+    <div class="box c-yellow"><div class="hd"><svg class="ico fa-none"><use href="#i-notebook"/></svg><h3 class="ttl">1. Follow the quickstart</h3></div><p>The docs tutorial <a href="https://docs.databricks.com/aws/en/getting-started/quick-start" target="_blank" rel="noopener">Query and visualize data from a notebook</a> uses the same taxi table.</p></div>
+    <div class="box c-mint"><div class="hd"><svg class="ico fa-none"><use href="#i-db"/></svg><h3 class="ttl">2. Explore sample data</h3></div><p>Browse the <a href="https://docs.databricks.com/aws/en/discover/databricks-datasets" target="_blank" rel="noopener">sample datasets</a>: taxi trips, TPC-H, TPC-DS and a travel-booking platform.</p></div>
+    <div class="box c-pink"><div class="hd"><svg class="ico fa-none"><use href="#i-code"/></svg><h3 class="ttl">3. Get hands-on</h3></div><p>Databricks Free Edition is free for learning, with SQL, Python, dashboards and Genie. Not for commercial use. <a href="https://signup.databricks.com/" target="_blank" rel="noopener">Sign up</a>.</p></div>
+    <div class="box c-sky"><div class="hd"><svg class="ico fa-none"><use href="#i-lamp"/></svg><h3 class="ttl">4. Go deeper on Genie</h3></div><p>Read <a href="https://docs.databricks.com/aws/en/genie-agents/set-up" target="_blank" rel="noopener">Create and manage a Genie Agent</a>, then the <a href="https://docs.databricks.com/aws/en/genie/" target="_blank" rel="noopener">Genie overview</a>.</p></div>
+  </div>
+  <div class="sticky mt" style="max-width:600px"><p>Per the docs, user usage of Genie One and Genie Agents is <span class="hl m">free through January 31, 2027</span>. Genie Code is billed pay-as-you-go with a free monthly allowance.</p></div>
+  <p class="foot">Sources: Databricks documentation, as of September 2026.</p>
+</template>
+
+<script>
+(function () {
+  var tpls = [].slice.call(document.querySelectorAll('template[data-note]'));
+  var notes = tpls.map(function (t) {
+    return { id: +t.dataset.note, title: t.dataset.title, desc: t.dataset.desc, icon: t.dataset.icon, color: t.dataset.color, series: t.dataset.series || '', tpl: t };
+  }).sort(function (a, b) { return a.id - b.id; });
+
+  var gridNew = document.getElementById('grid-new'), gridMain = document.getElementById('grid-main');
+  var viewer = document.getElementById('viewer'), vnote = document.getElementById('vnote'), vscroll = document.getElementById('vscroll');
+  var vtitle = document.getElementById('vtitle'), vcount = document.getElementById('vcount');
+  var vprev = document.getElementById('vprev'), vnext = document.getElementById('vnext'), vclose = document.getElementById('vclose');
+  var page = document.getElementById('page') || document.body;
+  var lastCard = null, current = null;
+
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+
+  notes.forEach(function (n) {
+    var a = document.createElement('a');
+    a.className = 'card';
+    a.href = '#/note/' + n.id;
+    a.setAttribute('data-id', n.id);
+    a.innerHTML =
+      '<span class="thumb" style="--fill:var(--' + n.color + ')">' +
+        '<svg class="ico xl fa-none" aria-hidden="true"><use href="#' + n.icon + '"/></svg>' +
+        (n.series ? '<span class="badge">New</span>' : '') +
+        '<span class="num">#' + n.id + '</span>' +
+      '</span>' +
+      '<h3>' + esc(n.title) + '</h3><p>' + esc(n.desc) + '</p>';
+    (n.series ? gridNew : gridMain).appendChild(a);
+  });
+
+  function open(id) {
+    var idx = -1;
+    notes.forEach(function (n, i) { if (n.id === id) idx = i; });
+    if (idx < 0) { close(); return; }
+    current = idx;
+    vnote.innerHTML = '';
+    vnote.appendChild(notes[idx].tpl.content.cloneNode(true));
+    vtitle.textContent = notes[idx].title;
+    vcount.textContent = (idx + 1) + ' / ' + notes.length;
+    vprev.disabled = idx === 0;
+    vnext.disabled = idx === notes.length - 1;
+    document.title = notes[idx].title + ' | Databricks Notes';
+    if (viewer.hidden) {
+      lastCard = document.activeElement;
+      viewer.hidden = false;
+      document.getElementById('gallery').setAttribute('inert', '');
+      document.body.style.overflow = 'hidden';
+      vclose.focus();
+    }
+    vscroll.scrollTop = 0;
+  }
+
+  function close() {
+    if (viewer.hidden) return;
+    viewer.hidden = true;
+    document.getElementById('gallery').removeAttribute('inert');
+    document.body.style.overflow = '';
+    document.title = 'Databricks Notes: simple drawings of the main concepts of Databricks';
+    current = null;
+    if (lastCard && lastCard.focus) { try { lastCard.focus({ preventScroll: true }); } catch (e) {} }
+  }
+
+  function go(idx) {
+    if (idx < 0 || idx >= notes.length) return;
+    location.hash = '#/note/' + notes[idx].id;
+  }
+
+  function route() {
+    var m = /^#\/note\/(\d+)$/.exec(location.hash);
+    if (m) open(parseInt(m[1], 10)); else close();
+  }
+
+  vclose.addEventListener('click', function () { location.hash = '#/'; });
+  vprev.addEventListener('click', function () { go(current - 1); });
+  vnext.addEventListener('click', function () { go(current + 1); });
+  window.addEventListener('hashchange', route);
+
+  document.addEventListener('keydown', function (e) {
+    if (viewer.hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === 'Escape') { e.preventDefault(); location.hash = '#/'; }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); go(current + 1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); go(current - 1); }
+  });
+
+  var sx = 0, sy = 0, track = false;
+  viewer.addEventListener('touchstart', function (e) {
+    track = !e.target.closest('.code');
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+  }, { passive: true });
+  viewer.addEventListener('touchend', function (e) {
+    if (!track) return;
+    var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.8) go(current + (dx < 0 ? 1 : -1));
+  }, { passive: true });
+
+  route();
+})();
+</script>
+</body>
+</html>

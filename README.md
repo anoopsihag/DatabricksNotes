@@ -1,2 +1,0 @@
-# DatabricksNotes
-Databricks Learning Hub
